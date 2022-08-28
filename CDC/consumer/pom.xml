@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.6.7</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.qbros</groupId>
+    <artifactId>consumer</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>consumer</name>
+    <description>Demo project for Spring Boot</description>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-jvm-consumer-junit5</artifactId>
+            <version>4.0.10</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+
+                    <systemPropertyVariables>
+
+                        <!--	Local pact file	 -->
+                        <pact.rootDir>Pacts</pact.rootDir>
+
+                        <!-- Setting this to true will force the Pact file to always be overridden when written.
+                         Setting it to false will cause the Pact to be merged with any existing file						-->
+                        <pact.writer.overwrite>true</pact.writer.overwrite>
+
+                        <!-- If set to true, will publish the results of the verification back to the Pact broker.
+                        Should only be enabled in CI.-->
+                        <pact.verifier.publishResults>true</pact.verifier.publishResults>
+
+                        <pact.verification.reports>json</pact.verification.reports>
+
+                        <!-- Run broker on local machine with docker using docker-compose file -->
+                        <pactbroker.url>http://localhost:9292</pactbroker.url>
+
+                    </systemPropertyVariables>
+
+                </configuration>
+            </plugin>
+
+
+            <!--	To publish to broker	-->
+            <!--			<plugin>-->
+            <!--				<groupId>au.com.dius</groupId>-->
+            <!--				<artifactId>pact-jvm-provider-maven</artifactId>-->
+            <!--				<version>4.0.3</version>-->
+            <!--				<configuration>-->
+            <!--					<pactDirectory>target/pacts</pactDirectory>-->
+            <!--					<pactBrokerUrl>http://localhost:9292</pactBrokerUrl>-->
+            <!--					<projectVersion>${project.version}</projectVersion>-->
+            <!--				</configuration>-->
+            <!--			</plugin>-->
+
+
+            <!--			<plugin>-->
+            <!--				<groupId>au.com.dius.pact.provider</groupId>-->
+            <!--				<artifactId>maven</artifactId>-->
+            <!--				<version>4.1.11</version>-->
+            <!--				<configuration>-->
+            <!--					<pactBrokerUrl>http://localhost:9292</pactBrokerUrl>-->
+            <!--&lt;!&ndash;					<pactDirectory>../Pacts</pactDirectory>&ndash;&gt;-->
+            <!--					<projectVersion>${project.version}</projectVersion>-->
+            <!--				</configuration>-->
+            <!--			</plugin>-->
+
+
+            <!-- Share consumer tests to broker -->
+            <plugin>
+                <groupId>au.com.dius</groupId>
+                <artifactId>pact-jvm-provider-maven</artifactId>
+                <version>4.0.10</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>publish</goal>
+                        </goals>
+                        <!-- Run broker on local machine with docker using docker-compose file -->
+                        <configuration>
+                            <pactDirectory>Pacts</pactDirectory>
+                            <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
+                            <projectVersion>1.1</projectVersion>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

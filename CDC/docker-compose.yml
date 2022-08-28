@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  postgres-pact:
+    image: postgres:12.12
+    healthcheck:
+      test: psql postgres --command "select 1" -U postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+
+  pact-broker:
+    image: pactfoundation/pact-broker
+    ports:
+      - "9292:9292"  #web ui: localhost:9292
+    links:
+      - postgres-pact
+    environment:
+      PACT_BROKER_PORT: '9292'
+      #-------------------------------------
+      #      PACT_BROKER_DATABASE_URL in the format driver://username:password@host:port/database
+      #      PACT_BROKER_DATABASE_URL: "postgres://postgresUser:password@postgres-pact/postgresPact"
+      PACT_BROKER_DATABASE_USERNAME: postgres
+      PACT_BROKER_DATABASE_PASSWORD: password
+      PACT_BROKER_DATABASE_HOST: postgres-pact
+      PACT_BROKER_DATABASE_NAME: postgres
+      #--------------------------------------
+      PACT_BROKER_LOG_LEVEL: INFO
+      PACT_BROKER_SQL_LOG_LEVEL: DEBUG
+      PACT_BROKER_WEBHOOK_SCHEME_WHITELIST: http https
+
+volumes:
+  postgres-volume:
